@@ -1,0 +1,21 @@
+% Facts about symptoms and diseases
+symptom(fever, [flu, cold, malaria]).
+symptom(cough, [flu, cold]).
+symptom(headache, [flu, migraine]).
+symptom(rash, [allergy, measles]).
+symptom(runny_nose, [flu, cold]).
+symptom(fatigue, [flu, malaria]).
+symptom(sneezing, [cold, allergy]).
+symptom(chills, [malaria, flu]).
+
+% Rule to diagnose a disease based on symptoms
+diagnose(Disease, Symptoms) :-
+    findall(D, (member(Symptom, Symptoms), symptom(Symptom, Ds), member(D, Ds)), AllDiseases),
+    sort(AllDiseases, SortedDiseases),
+    member(Disease, SortedDiseases),
+    forall(member(Symptom, Symptoms), (symptom(Symptom, Ds), member(Disease, Ds))).
+
+% Predicate to find possible diseases based on symptoms
+possible_diseases(Symptoms, Diseases) :-
+    findall(Disease, diagnose(Disease, Symptoms), UnsortedDiseases),
+    sort(UnsortedDiseases, Diseases).
