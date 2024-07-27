@@ -1,0 +1,48 @@
+% Declare dynamic predicates
+:- dynamic fact/2.
+:- dynamic derived/1.
+
+% Define facts and rules
+fact(has_fur, dog).
+fact(has_tail, dog).
+fact(has_fur, cat).
+fact(has_tail, cat).
+fact(has_feathers, bird).
+
+rule(mammal, X) :-
+    fact(has_fur, X),
+    fact(has_tail, X).
+
+rule(animals, X) :-
+    fact(has_fur, X).
+
+rule(animals, X) :-
+    fact(has_feathers, X).
+
+% Derived facts
+derived([]).
+
+% Implement forward chaining
+forward_chaining :-
+    derived(Derived),
+    rule(Consequent, X),
+    \+ member((Consequent, X), Derived), % Check if already derived
+    \+ fact(Consequent, X), % Check if not already known as a fact
+    (   check_conditions(Consequent, X) ->
+        write('Derived: '), write(Consequent), write(' for '), write(X), nl,
+        asserta(fact(Consequent, X)),
+        append([(Consequent, X)], Derived, NewDerived),
+        retract(derived(Derived)),
+        asserta(derived(NewDerived)),
+        forward_chaining % Continue the process
+    ;   true
+    ).
+forward_chaining.
+
+% Check if all conditions of a rule are satisfied
+check_conditions(mammal, X) :-
+    fact(has_fur, X),
+    fact(has_tail, X).
+
+check_conditions(animals, X) :-
+    (fact(has_fur, X); fact(has_feathers, X)).
